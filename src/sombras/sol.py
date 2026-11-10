@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import pandas as pd
 import pvlib
 
+ZONA_HORARIA = "Europe/Madrid"
+
 @dataclass(frozen=True)
 class Punto:
     """Punto en cordenadas geográficas WGS84 (EPSG:4326, lat y lon)"""
@@ -32,3 +34,12 @@ def posicion_solar(punto: Punto, instantes: pd.DatetimeIndex) -> pd.DataFrame:
         },
         index=instantes,
     )
+
+def instantes_del_dia(fecha: str, paso: str= "1h", zona: str = ZONA_HORARIA) -> pd.DatetimeIndex:
+    """Devuelve instantes de un día completo en hora local, 'paso' indica cada cuanto se registra un instante"""
+    """Se usa DateOffset en vez de Timedelta para que los días de cambio horario no se vean afectados"""
+
+    inicio = pd.Timestamp(fecha, tz=zona) # medianoche local de la fecha
+    fin = inicio + pd.DateOffset(days=1) # justamente medianoche del día siguiente
+    return pd.date_range(inicio, fin, freq=paso, inclusive="left") # inclusive="left" incluye el inicio pero no el final (24 instantes por día)
+
