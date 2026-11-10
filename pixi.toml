@@ -1,0 +1,16 @@
+[workspace]
+authors = ["JesusRodVil <jesusrodriguezvllr@gmail.com>"]
+channels = ['conda-forge']
+name = "sombras-punto"
+platforms = ['linux-64']
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.12.*"
+pvlib = ">=0.16.1,<0.17"
+pandas = ">=3.1.1,<4"
+
+[feature.test.dependencies]
+pytest = "*"
