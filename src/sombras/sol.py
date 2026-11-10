@@ -16,8 +16,8 @@ class Punto:
     altitud: float = 0.0 # m sobre nivel del mar
 
 def posicion_solar(punto: Punto, instantes: pd.DatetimeIndex) -> pd.DataFrame:
-    """Elevación y acimut del sol en cada instante"""
-    """acimut: coordenada horizontal que indica la dirección en la que se encuentra el Sol a lo largo del horizonte"""
+    """Elevación y acimut del sol en cada instante
+    acimut: coordenada horizontal que indica la dirección en la que se encuentra el Sol a lo largo del horizonte"""
 
     if instantes.tz is None: # si no tiene tz asignada, el sistema asume UTC
         raise ValueError(
@@ -29,15 +29,15 @@ def posicion_solar(punto: Punto, instantes: pd.DatetimeIndex) -> pd.DataFrame:
 
     return pd.DataFrame(
         {
-            "elevacion": pos["apparent_elevation"], # la elevación con la refracción de la atmósfera incluida, (la sombra la proyecta la luz que llega de verdad)
+            "elevacion": pos["apparent_elevation"], # la elevación con la refracción de la atmósfera incluida, (la sombra proyecta la luz que llega de verdad)
             "acimut": pos["azimuth"], # medido desde el norte en sentido horario (N = 0°, E = 90°, S = 180°, O = 270°)
         },
         index=instantes,
     )
 
 def instantes_del_dia(fecha: str, paso: str= "1h", zona: str = ZONA_HORARIA) -> pd.DatetimeIndex:
-    """Devuelve instantes de un día completo en hora local, 'paso' indica cada cuanto se registra un instante"""
-    """Se usa DateOffset en vez de Timedelta para que los días de cambio horario no se vean afectados"""
+    """Devuelve instantes de un día completo en hora local, 'paso' indica cada cuanto se registra un instante
+    Se usa DateOffset en vez de Timedelta para que los días de cambio horario no se vean afectados"""
 
     inicio = pd.Timestamp(fecha, tz=zona) # medianoche local de la fecha
     fin = inicio + pd.DateOffset(days=1) # justamente medianoche del día siguiente
