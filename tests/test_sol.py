@@ -39,7 +39,7 @@ def test_sol_al_este_y_oeste(fecha):
 )
 
 def test_elevacion_negativa_de_noche(fecha):
-    medianoche = momento_solar(fecha, "transit") + pd.Timedelta(hours=12)
+    medianoche = momento_solar(fecha, "transit") + pd.Timedelta(hours=12) # medianoche: mediodía + 12h
     pos = posicion_solar(PUNTO, medianoche).iloc[0]
     assert pos.elevacion < 0
 
@@ -70,3 +70,7 @@ def test_elevacion_en_mediodia_de_solsticio(fecha, declinacion):
     assert pos.elevacion == pytest.approx(esperada, abs=0.05) # margen absoluto de 0.05º
     assert pos.acimut == pytest.approx(180, abs=0.1) # margen absoluto de 0.1º. En el mediodía solar, el sol está exactamente al sur: 180° en nuestro convenio (N = 0°, E = 90°, S = 180°)
 
+def test_instante_sin_tz():
+    sin_zona = pd.DatetimeIndex([pd.Timestamp("2026-11-10")]) # no ponemos tz en el Timestamp para el Datetimeindex
+    with pytest.raises(ValueError):
+        posicion_solar(PUNTO, sin_zona)
