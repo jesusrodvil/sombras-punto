@@ -11,23 +11,38 @@ OBLICUIDAD = 23.44  # inclinación del eje terrestre, en grados
 
 def momento_solar(fecha: str, momento: Literal["sunrise", "sunset", "transit"]) -> pd.DatetimeIndex:
     dia = pd.DatetimeIndex([pd.Timestamp(fecha, tz="Europe/Madrid")]) # se pasa como lista porque DatetineIndex necesita que sea así
-    transito = pvlib.solarposition.sun_rise_set_transit_spa(dia, PUNTO.lat, PUNTO.lon) # transito: mediodia solar. solarposition.sun_rise_set_transit_spa devuelve salida (sunrise), puesta (sunset) y mediodía (transit)
-    return pd.DatetimeIndex(transito[momento])
+    momentos = pvlib.solarposition.sun_rise_set_transit_spa(dia, PUNTO.lat, PUNTO.lon) # solarposition.sun_rise_set_transit_spa devuelve salida (sunrise), puesta (sunset) y mediodía (transit)
+    return pd.DatetimeIndex(momentos[momento])
 
 @pytest.mark.parametrize(
     "fecha", 
     [
-        "2026-06-21", # días cualesquiera
-        "2026-11-10", 
-        "2026-12-21"
+        "2026-06-21", # día más largo
+        "2026-11-10", # día cualquiera
+        "2026-12-21"  # día más corto
     ]
 )
 
 def test_sol_al_este_y_oeste(fecha):
-    pos_salida = posicion_solar(PUNTO, momento_solar(fecha, "sunrise")).iloc[0] # iloc[0]: toma la primera fila por posición (integer location)
-    pos_puesta = posicion_solar(PUNTO, momento_solar(fecha, "sunset")).iloc[0]
+    pos_salida = posicion_solar(PUNTO, momento_solar(fecha, "sunrise")).iloc[0] # iloc[0]: toma la primera fila por posición (integer location). Posición del sol en la salida
+    pos_puesta = posicion_solar(PUNTO, momento_solar(fecha, "sunset")).iloc[0] # posición del sol en la puesta
     assert 0 < pos_salida.acimut < 180    # mitad este del horizonte. El sol sale por el este
     assert 180 < pos_puesta.acimut < 360  # mitad oeste del horizonte. El sol sale por el oeste
+
+@pytest.mark.parametrize(
+    "fecha", 
+    [
+        "2026-06-21", # día más largo
+        "2026-11-10", # día cualquiera
+        "2026-12-21"  # día más corto
+    ]
+)
+
+def test_elevacion_negativa_de_noche(fecha):
+    medianoche = momento_solar(fecha, "transit") + pd.Timedelta(hours=12)
+    pos = posicion_solar(PUNTO, medianoche).iloc[0]
+    assert pos.elevacion < 0
+
 
 @pytest.mark.parametrize(
     "fecha, horas",
