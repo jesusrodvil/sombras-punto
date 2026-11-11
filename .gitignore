@@ -5,3 +5,7 @@
 # Python
 __pycache__/
 .pytest_cache/
+
+# Datos
+data/raw/
+data/processed/

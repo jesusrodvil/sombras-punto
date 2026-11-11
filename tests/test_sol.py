@@ -22,12 +22,11 @@ def momento_solar(fecha: str, momento: Literal["sunrise", "sunset", "transit"]) 
         "2026-12-21"  # día más corto
     ]
 )
-
 def test_sol_al_este_y_oeste(fecha):
     pos_salida = posicion_solar(PUNTO, momento_solar(fecha, "sunrise")).iloc[0] # iloc[0]: toma la primera fila por posición (integer location). Posición del sol en la salida
     pos_puesta = posicion_solar(PUNTO, momento_solar(fecha, "sunset")).iloc[0] # posición del sol en la puesta
     assert 0 < pos_salida.acimut < 180    # mitad este del horizonte. El sol sale por el este
-    assert 180 < pos_puesta.acimut < 360  # mitad oeste del horizonte. El sol sale por el oeste
+    assert 180 < pos_puesta.acimut < 360  # mitad oeste del horizonte. El sol se pone por el oeste
 
 @pytest.mark.parametrize(
     "fecha", 
@@ -37,7 +36,6 @@ def test_sol_al_este_y_oeste(fecha):
         "2026-12-21"  # día más corto
     ]
 )
-
 def test_elevacion_negativa_de_noche(fecha):
     medianoche = momento_solar(fecha, "transit") + pd.Timedelta(hours=12) # medianoche: mediodía + 12h
     pos = posicion_solar(PUNTO, medianoche).iloc[0]
@@ -52,7 +50,6 @@ def test_elevacion_negativa_de_noche(fecha):
         ("2026-10-25", 25),  # cambio a horario de invierno
     ],
 )
-
 def test_instantes_por_dia(fecha, horas):
     assert len(instantes_del_dia(fecha)) == horas
 
@@ -63,7 +60,6 @@ def test_instantes_por_dia(fecha, horas):
         ("2026-12-21", -OBLICUIDAD) # invierno
     ],
 )
-
 def test_elevacion_en_mediodia_de_solsticio(fecha, declinacion):
     pos = posicion_solar(PUNTO, momento_solar(fecha, "transit")).iloc[0]
     esperada = 90 - PUNTO.lat + declinacion # si estuvieramos en el ecuador (latitud 0) en un equinoccio (declinación 0), el sol pasaría justo por encima de nosotros 90°
