@@ -9,3 +9,6 @@ __pycache__/
 # Datos
 data/raw/
 data/processed/
+
+# Script de exploracion
+exploracion.py

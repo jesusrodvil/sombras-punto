@@ -20,5 +20,10 @@ pytest = "*"
 [feature.test.tasks]
 test = "pytest"
 
+[feature.dev.dependencies]
+matplotlib = "*"
+ipython = "*"
+
 [environments]
 test = ["test"]
+dev = ["dev", "test"]
