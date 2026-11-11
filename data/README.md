@@ -4,7 +4,7 @@
 - Origen: Centro de Descargas del CNIG — Modelos Digitales de Elevaciones
 - Fecha de descarga: 2026-11-11
 - Vuelo: Comunidad de Madrid, marzo–mayo 2024
-- Sistema de referencia: ETRS89 / UTM huso 30N (EPSG:25830)
+- Sistema de referencia: EPSG:3042 (ETRS89 / UTM 30N, ejes N-E), declarado en la cabecera del GeoTIFF; misma proyección que EPSG:25830
 - Licencia: uso libre compatible con CC BY 4.0, citando al IGN
-- SHA-256: <hash>
+- SHA-256: data/raw/MDS50CM-*.tif
 - Ubicación local: data/raw/
