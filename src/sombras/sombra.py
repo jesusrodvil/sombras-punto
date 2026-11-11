@@ -6,10 +6,10 @@ import numpy as np
 
 def hay_sombra(alturas, fila, col, acimut, elevacion, res=0.5, altura_observador=1.7, paso=0.25):
     """True si algo se interpone entre la celda (fila, col) y el sol.
-    -. Alturas: el MDS de una ventana como un array normal
+    -. Alturas: el MDS de una ventana como un array normal en metros (celdas sin datos: NaN)
     -. Fila: fila del ráster dónde se encuentra el observador 
     -. Columna: columna del ráster dónde se encuentra el observador 
-    -. Acimut: acimut del sol en e instante observado
+    -. Acimut: acimut del sol en e instante observado medido desde el norte
     -. Elevación: elevación del sol en e instante observado
     -. Res: resolución de las casillas del ráster (en el MDS del IGN 0.5mx0.5m)
     -. Altura_observador: altura del observador (modificable)
@@ -18,9 +18,9 @@ def hay_sombra(alturas, fila, col, acimut, elevacion, res=0.5, altura_observador
         return True  # de noche no hay sol
 
     z_obs = alturas[fila, col] + altura_observador # altura base del punto + altura del observador
-    este = math.sin(math.radians(acimut)) # cuánto se mueve al este el rayo (seno del acimut)
-    norte = math.cos(math.radians(acimut)) # cuánto se mueve al norte el rayo (coseno del acimut)
-    subida = math.tan(math.radians(elevacion)) # cuánto se sube el rayo (tangente de la elevación)
+    este = math.sin(math.radians(acimut)) # cuánto se mueve al este el rayo por metro horizontal (seno del acimut)
+    norte = math.cos(math.radians(acimut)) # cuánto se mueve al norte el rayo por metro horizontal (coseno del acimut)
+    subida = math.tan(math.radians(elevacion)) # cuánto se sube el rayo por metro horizontal (tangente de la elevación)
     z_max = np.nanmax(alturas) # altura máxima en la ventana estudiada
 
     d = paso
