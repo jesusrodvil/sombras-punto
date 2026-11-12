@@ -90,6 +90,7 @@ def test_rayo_sale_por_el_borde(acimut):
     assert not hay_sombra(alturas, 50, 50, acimut=acimut, elevacion=30,
                           res=RES, altura_observador=OBS)
 
+
 @pytest.mark.parametrize(
     "acimut, elevacion",
     [
@@ -107,7 +108,7 @@ def test_mapa_coincide_con_hay_sombra(acimut, elevacion):
     alturas = ciudad_aleatoria(41, semilla=1) # tamaño acotado 41x41, un tamaño más grande alargaría el tiempo que toman los tests
     mapa = mapa_sombra(alturas, acimut, elevacion, res=RES, altura_observador=OBS) # intento con mapa_sombra
     referencia = np.array([ # intento con hay_sombra para cada celda 1 a 1
-        [hay_sombra(alturas, f, c, acimut, elevacion, res=RES, altura_observador=OBS)for c in range(alturas.shape[1])]
+        [hay_sombra(alturas, f, c, acimut, elevacion, res=RES, altura_observador=OBS) for c in range(alturas.shape[1])]
         for f in range(alturas.shape[0])
     ])
     np.testing.assert_array_equal(mapa, referencia) # comprueba que sean iguales
