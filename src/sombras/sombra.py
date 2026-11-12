@@ -7,15 +7,15 @@ import numpy as np
 def desplazar(a, df, dc, relleno=-np.inf):
     """Devuelve una matriz en la que cada celda (f, c) contiene a[f + df, c + dc].
     Las celdas cuyo origen queda fuera de a se rellenan."""
-    n_f, n_c = a.shape
+    n_f, n_c = a.shape # número de filas y columnas
     salida = np.full(a.shape, relleno, dtype=float)
     if abs(df) >= n_f or abs(dc) >= n_c:
         return salida  # el desplazamiento saca todo fuera de la matriz
 
-    origen_f = slice(max(0, df), n_f - max(0, -df)) # filas de la matriz original a mover
-    destino_f = slice(max(0, -df), n_f - max(0, df)) # filas de la matriz original donde se mueven
-    origen_c = slice(max(0, dc), n_c - max(0, -dc)) # columnas de la matriz original a mover
-    destino_c = slice(max(0, -dc), n_c - max(0, dc)) # columnas de la matriz original donde se mueven
+    origen_f = slice(max(0, df), n_f - max(0, -df)) # filas que se leen del original
+    destino_f = slice(max(0, -df), n_f - max(0, df)) # filas de la salida donde se escriben
+    origen_c = slice(max(0, dc), n_c - max(0, -dc)) # columnas que se leen del original
+    destino_c = slice(max(0, -dc), n_c - max(0, dc)) # columnas de la salida donde se escriben
 
     salida[destino_f, destino_c] = a[origen_f, origen_c] # hace el desplazamiento
     return salida
@@ -52,3 +52,35 @@ def hay_sombra(alturas, fila, col, acimut, elevacion, res=0.5, altura_observador
         if alturas[f, c] > z_rayo:
             return True   # algo tapa el sol
         d += paso
+
+
+def mapa_sombra(alturas, acimut, elevacion, res=0.5, altura_observador=1.7, paso=0.25):
+    """Matriz booleana: True en las celdas de alturas que están a la sombra.
+    Equivale a llamar a hay_sombra en cada celda, pero avanza los rayos de
+    todas las celdas a la vez desplazando la matriz completa en cada paso"""
+
+    if elevacion <= 0:
+        return np.ones(alturas.shape, dtype=bool) # si es de noche todo está a la sombra
+
+    z_obs = alturas + altura_observador # en este caso se suma al altura de observador a todos los puntos de cada celda
+    este = math.sin(math.radians(acimut))
+    norte = math.cos(math.radians(acimut))
+    subida = math.tan(math.radians(elevacion))
+    desnivel = np.nanmax(alturas) - np.nanmin(z_obs) # medida para atajo si todos nos rayos superan el desnivel
+    n_f, n_c = alturas.shape
+
+    sombra = np.zeros(alturas.shape, dtype=bool) # inicializa la matriz en 0
+    d = paso
+    while d * subida <= desnivel:
+        df = -round(d * norte / res) # avance en filas
+        dc = round(d * este / res) # avance en columnas
+
+        if abs(df) >= n_f or abs(dc) >= n_c:
+            break  # todos los rayos han salido de la ventana
+
+        terreno = desplazar(alturas, df, dc) # altura del terreno en cada casilla tras desplazamiento
+        sombra |= (terreno > z_obs + d * subida) # compara y comprueba todas las celdas (si un casilla = True: el terreno supera al rayo y hay un obstáculo a esa distancia) Luego hace or con sombra
+        d += paso
+    return sombra
+
+
