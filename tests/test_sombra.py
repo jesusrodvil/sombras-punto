@@ -3,7 +3,7 @@ import math
 import numpy as np
 import pytest
 
-from sombras.sombra import hay_sombra
+from sombras.sombra import hay_sombra, mapa_sombra
 
 RES = 0.5  # metros por celda, como el MDS del IGN
 OBS = 1.7  # altura del observador usada en los tests
@@ -17,6 +17,17 @@ def escena_muro(distancia, altura, n=101):
     fila_muro = centro + round(distancia / RES) # fila donde empieza el muro
     alturas[fila_muro:, :] = altura
     return alturas, centro
+
+def ciudad_aleatoria(n, semilla):
+    """Escena de n × n celdas con suelo algo irregular y bloques de 5 a 45 m."""
+    rng = np.random.default_rng(semilla)
+    alturas = rng.normal(0, 0.05, size=(n, n))
+    for _ in range(n // 7):
+        f, c = rng.integers(0, n - 5, size=2)
+        alto, ancho = rng.integers(5, 30, size=2)
+        alturas[f:f + alto, c:c + ancho] = rng.uniform(5, 45)
+    alturas[3, 7] = np.nan  # una celda sin dato
+    return alturas
 
 
 @pytest.mark.parametrize(
@@ -78,3 +89,25 @@ def test_rayo_sale_por_el_borde(acimut):
     alturas[0, 10] = 1000  # pilar fuera del camino: solo sirve para que z_max sea alto
     assert not hay_sombra(alturas, 50, 50, acimut=acimut, elevacion=30,
                           res=RES, altura_observador=OBS)
+
+@pytest.mark.parametrize(
+    "acimut, elevacion",
+    [
+        (180, 32), 
+        (135, 15), 
+        (220, 8), 
+        (0, 30), 
+        (90, 20), 
+        (45, 10), 
+        (300, 5), 
+        (17.3, 22.2)
+    ],
+)
+def test_mapa_coincide_con_hay_sombra(acimut, elevacion):
+    alturas = ciudad_aleatoria(41, semilla=1) # tamaño acotado 41x41, un tamaño más grande alargaría el tiempo que toman los tests
+    mapa = mapa_sombra(alturas, acimut, elevacion, res=RES, altura_observador=OBS) # intento con mapa_sombra
+    referencia = np.array([ # intento con hay_sombra para cada celda 1 a 1
+        [hay_sombra(alturas, f, c, acimut, elevacion, res=RES, altura_observador=OBS)for c in range(alturas.shape[1])]
+        for f in range(alturas.shape[0])
+    ])
+    np.testing.assert_array_equal(mapa, referencia) # comprueba que sean iguales
