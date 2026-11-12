@@ -84,3 +84,14 @@ def mapa_sombra(alturas, acimut, elevacion, res=0.5, altura_observador=1.7, paso
     return sombra
 
 
+def horas_de_sol(alturas, acimuts, elevaciones, horas_por_instante,
+                 res=0.5, altura_observador=1.7, paso=0.25):
+    """Horas de sol directo de cada celda de alturas a lo largo de varios instantes.
+    acimuts y elevaciones dan la posición del sol en cada instante, y cada instante cuenta como horas_por_instante horas (0.25 si se muestrea cada 15 minutos)"""
+    total = np.zeros(alturas.shape)
+    for acimut, elevacion in zip(acimuts, elevaciones):
+        if elevacion > 0:
+            al_sol = ~mapa_sombra(alturas, acimut, elevacion,
+                                  res=res, altura_observador=altura_observador, paso=paso)
+            total += al_sol
+    return total * horas_por_instante
