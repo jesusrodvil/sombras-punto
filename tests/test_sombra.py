@@ -3,7 +3,7 @@ import math
 import numpy as np
 import pytest
 
-from sombras.sombra import hay_sombra, mapa_sombra
+from sombras.sombra import hay_sombra, mapa_sombra, horas_de_sol
 
 RES = 0.5  # metros por celda, como el MDS del IGN
 OBS = 1.7  # altura del observador usada en los tests
@@ -112,3 +112,20 @@ def test_mapa_coincide_con_hay_sombra(acimut, elevacion):
         for f in range(alturas.shape[0])
     ])
     np.testing.assert_array_equal(mapa, referencia) # comprueba que sean iguales
+
+
+def test_horas_de_sol_en_suelo_plano_son_las_horas_de_dia():
+    alturas = np.zeros((11, 11))
+    elevaciones = [-10, 5, 30, 50, 30, 5, -10]  # noche, día, noche
+    acimuts = [90, 110, 150, 180, 210, 250, 270]
+    horas = horas_de_sol(alturas, acimuts, elevaciones, horas_por_instante=1, res=RES, altura_observador=OBS)
+    assert (horas == 5).all()
+
+
+def test_horas_de_sol_detras_de_un_muro():
+    alturas, centro = escena_muro(distancia=5, altura=10)
+    acimuts = [180, 180, 180]
+    elevaciones = [50, 70, -5]  # sombra, sol, noche
+    horas = horas_de_sol(alturas, acimuts, elevaciones, horas_por_instante=0.25, res=RES, altura_observador=OBS) # cada 15 min
+    assert horas[centro, centro] == 0.25
+
