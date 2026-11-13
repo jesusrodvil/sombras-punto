@@ -21,5 +21,5 @@
 - Campos: objectid, nivel, id_cd, shape_star (área, m²), shape_stle (perímetro, m). Los dos últimos son Shape_STArea y Shape_STLength truncados por el límite de 10 caracteres del formato Shapefile.
 - Sistema de referencia: EPSG:25830 (ETRS89 / UTM 30N), comprobado en QGIS para las tres capas
 - Licencia: licencia propia del portal de datos abiertos del Ayuntamiento de Madrid; exige citar el origen de los datos y la fecha de su última actualización
-- Ubicación local: data/raw/
+- Ubicación local: data/raw/aceras
 - Validación: encaja con la ortofoto del PNOA y con el MDS

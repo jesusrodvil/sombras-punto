@@ -1,6 +1,8 @@
 """Lectura de ventanas del Modelo Digital de Superficies alrededor de un punto."""
 
 from dataclasses import dataclass
+from rasterio.crs import CRS
+from rasterio.transform import Affine
 
 import numpy as np
 import rasterio
@@ -15,6 +17,8 @@ class Ventana:
     fila: int  # fila del punto dentro de alturas
     col: int  # columna del punto dentro de alturas
     res: float  # lado de cada celda, en metros
+    transformacion: Affine  # de (fila, columna) de la ventana a coordenadas del MDS
+    crs: CRS  # sistema de referencia del MDS
 
 def leer_ventana(ruta, lon, lat, radio):
     """Lee la ventana del MDS de ruta con radio metros alrededor de (lon, lat).
@@ -33,5 +37,7 @@ def leer_ventana(ruta, lon, lat, radio):
 
         ventana = Window(col_off=col - r, row_off=fila - r, width=2 * r + 1, height=2 * r + 1) # descripción de la ventana a aleer
         alturas = mds.read(1, window=ventana, masked=True).filled(np.nan)
+        transformacion = mds.window_transform(ventana) # transformación afín de la ventana 
+        crs = mds.crs
 
-    return Ventana(alturas=alturas, fila=r, col=r, res=res)
+    return Ventana(alturas=alturas, fila=r, col=r, res=res, transformacion=transformacion, crs=crs)
