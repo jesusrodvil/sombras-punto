@@ -3,7 +3,7 @@ import math
 import numpy as np
 import pytest
 
-from sombras.sombra import hay_sombra, mapa_sombra, horas_de_sol, sombra_en_celdas
+from sombras.sombra import hay_sombra, mapa_sombra, horas_de_sol, sombra_en_aceras, horas_de_sol_en_aceras
 
 RES = 0.5  # metros por celda, como el MDS del IGN
 OBS = 1.7  # altura del observador usada en los tests
@@ -134,12 +134,32 @@ def test_horas_de_sol_detras_de_un_muro():
     "acimut, elevacion",
     [(180, 32), (135, 15), (220, 8), (0, 30), (90, 20), (45, 10), (300, 5), (17.3, 22.2), (180, -3)],
 )
-def test_sombra_en_celdas_coincide_con_mapa(acimut, elevacion):
+def test_sombra_en_aceras_coincide_con_mapa(acimut, elevacion):
     alturas = ciudad_aleatoria(41, semilla=1)
     rng = np.random.default_rng(2)
     filas, cols = np.nonzero(rng.random(alturas.shape) < 0.2)
-    resultado = sombra_en_celdas(alturas, filas, cols, acimut, elevacion,
+    resultado = sombra_en_aceras(alturas, filas, cols, acimut, elevacion,
                                  res=RES, altura_observador=OBS)
     referencia = mapa_sombra(alturas, acimut, elevacion,
                              res=RES, altura_observador=OBS)[filas, cols]
     np.testing.assert_array_equal(resultado, referencia)
+
+
+def test_horas_de_sol_por_acera_en_suelo_plano_son_las_horas_de_dia():
+    alturas = np.zeros((11, 11))
+    elevaciones = [-10, 5, 30, 50, 30, 5, -10]  # noche, día, noche
+    acimuts = [90, 110, 150, 180, 210, 250, 270]
+    rng = np.random.default_rng(2)
+    filas, cols = np.nonzero(rng.random(alturas.shape) < 0.2)
+    horas = horas_de_sol_en_aceras(alturas, filas, cols, acimuts, elevaciones, horas_por_instante=1, res=RES, altura_observador=OBS)
+    assert (horas == 5).all()
+
+
+def test_horas_de_sol_por_acera_detras_de_un_muro():
+    alturas, centro = escena_muro(distancia=5, altura=10)
+    acimuts = [180, 180, 180]
+    elevaciones = [50, 70, -5]  # sombra, sol, noche
+    filas = np.array([centro])
+    cols = np.array([centro])
+    horas = horas_de_sol_en_aceras(alturas, filas, cols, acimuts, elevaciones, horas_por_instante=0.25, res=RES, altura_observador=OBS) # cada 15 min
+    assert horas[0] == 0.25

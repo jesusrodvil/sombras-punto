@@ -84,7 +84,7 @@ def mapa_sombra(alturas, acimut, elevacion, res=0.5, altura_observador=1.7, paso
     return sombra
 
 
-def sombra_en_celdas(alturas, filas, cols, acimut, elevacion, res=0.5, altura_observador=1.7, paso=0.25):
+def sombra_en_aceras(alturas, filas, cols, acimut, elevacion, res=0.5, altura_observador=1.7, paso=0.25):
     """Sombra en una lista de celdas: True si la celda (filas[i], cols[i]) está a la sombra.
     Equivale a mapa_sombra(...)[filas, cols], pero solo lanza rayos desde esas
     celdas y deja de calcular cada una en cuanto su resultado está decidido.
@@ -132,10 +132,10 @@ def horas_de_sol(alturas, acimuts, elevaciones, horas_por_instante, res=0.5, alt
             total += al_sol
     return total * horas_por_instante
 
-def horas_de_sol_en_celdas(alturas, filas, cols, acimuts, elevaciones, horas_por_instante, res=0.5, altura_observador=1.7, paso=0.25):
+def horas_de_sol_en_aceras(alturas, filas, cols, acimuts, elevaciones, horas_por_instante, res=0.5, altura_observador=1.7, paso=0.25):
     """Horas de sol directo de cada celda (filas[i], cols[i]) a lo largo de varios instantes."""
     total = np.zeros(len(filas))
     for acimut, elevacion in zip(acimuts, elevaciones):
         if elevacion > 0:
-            total += ~sombra_en_celdas(alturas, filas, cols, acimut, elevacion, res=res, altura_observador=altura_observador, paso=paso)
+            total += ~sombra_en_aceras(alturas, filas, cols, acimut, elevacion, res=res, altura_observador=altura_observador, paso=paso)
     return total * horas_por_instante
