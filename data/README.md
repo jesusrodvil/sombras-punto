@@ -2,7 +2,6 @@
 
 - Producto: Modelo Digital de Superficies 0,5 m, PNOA-LiDAR 3ª cobertura, versión 1 (provisional)
 - Origen: Centro de Descargas del CNIG — Modelos Digitales de Elevaciones
-- Fecha de descarga: 2026-11-11
 - Vuelo: Comunidad de Madrid, marzo–mayo 2024
 - Sistema de referencia: EPSG:3042 (ETRS89 / UTM 30N, ejes N-E), declarado en la cabecera del GeoTIFF; misma proyección que EPSG:25830
 - Licencia: uso libre compatible con CC BY 4.0, citando al IGN
@@ -12,8 +11,7 @@
 
 - Producto: Cartografía municipal a escala 1:1000 del Ayuntamiento de Madrid, versión 2016
 - Origen: Portal de datos abiertos del Ayuntamiento de Madrid — "Cartografía municipal por distritos a escala 1:1000, formato SHP, ETRS89"
-- Fichero descargado: 03.Retiro.zip
-- Fecha de descarga: 2026-11-13
+- Fichero descargado: 03.{distrito}.zip
 - Capas usadas:
   - `acera_p`: aceras (polígonos)
   - `acera_nivel_p`: aceras al mismo nivel que la calzada (polígonos)
@@ -23,3 +21,10 @@
 - Licencia: licencia propia del portal de datos abiertos del Ayuntamiento de Madrid; exige citar el origen de los datos y la fecha de su última actualización
 - Ubicación local: data/raw/aceras
 - Validación: encaja con la ortofoto del PNOA y con el MDS
+
+## Red peatonal de OpenStreetMap
+
+- Origen: OpenStreetMap, descargado con OSMnx 2.1 (API Overpass), network_type="walk"
+- Zona: cuadrado de 200 m alrededor del punto
+- Fichero: data/raw/red_peatonal_tellez.graphml
+- Licencia: ODbL; atribución obligatoria "© OpenStreetMap contributors"
