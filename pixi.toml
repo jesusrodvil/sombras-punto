@@ -14,6 +14,7 @@ pandas = ">=3.1.1,<4"
 rasterio = ">=1.5.2,<2"
 pyproj = ">=3.8.0,<4"
 numpy = ">=2.5.4,<3"
+geopandas = ">=1.2.0,<2"
 
 [feature.test.dependencies]
 pytest = "*"
