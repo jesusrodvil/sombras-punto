@@ -84,6 +84,44 @@ def mapa_sombra(alturas, acimut, elevacion, res=0.5, altura_observador=1.7, paso
     return sombra
 
 
+def sombra_en_celdas(alturas, filas, cols, acimut, elevacion, res=0.5, altura_observador=1.7, paso=0.25):
+    """Sombra en una lista de celdas: True si la celda (filas[i], cols[i]) está a la sombra.
+    Equivale a mapa_sombra(...)[filas, cols], pero solo lanza rayos desde esas
+    celdas y deja de calcular cada una en cuanto su resultado está decidido.
+    Los obstáculos siguen siendo todo alturas."""
+
+    sombra = np.zeros(len(filas), dtype=bool)
+    if elevacion <= 0:
+        sombra[:] = True  # de noche, todas a la sombra
+        return sombra
+
+    n_f, n_c = alturas.shape
+    este = math.sin(math.radians(acimut))
+    norte = math.cos(math.radians(acimut))
+    subida = math.tan(math.radians(elevacion))
+    z_max = np.nanmax(alturas)
+    z_obs = alturas[filas, cols] + altura_observador
+
+    vivas = np.arange(len(filas))  # posiciones en la lista de las celdas aún sin decidir
+    d = paso
+    while vivas.size > 0:
+        df = -round(d * norte / res)
+        dc = round(d * este / res)
+        f = filas[vivas] + df
+        c = cols[vivas] + dc
+        z_rayo = z_obs[vivas] + d * subida
+
+        dentro = (f >= 0) & (f < n_f) & (c >= 0) & (c < n_c)
+        sigue = dentro & (z_rayo <= z_max)
+        choca = np.zeros(vivas.size, dtype=bool)
+        choca[sigue] = alturas[f[sigue], c[sigue]] > z_rayo[sigue]
+
+        sombra[vivas[choca]] = True
+        vivas = vivas[sigue & ~choca]
+        d += paso
+    return sombra
+
+
 def horas_de_sol(alturas, acimuts, elevaciones, horas_por_instante, res=0.5, altura_observador=1.7, paso=0.25):
     """Horas de sol directo de cada celda de alturas a lo largo de varios instantes.
     acimuts y elevaciones dan la posición del sol en cada instante, y cada instante cuenta como horas_por_instante horas (0.25 si se muestrea cada 15 minutos)"""
